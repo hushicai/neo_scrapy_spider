@@ -52,7 +52,7 @@ class IpPipeline(object):
 
     try:
       r = requests.get(
-        url = TEST_PROXY_URL,
+        url = urljoin(TEST_PROXY_URL, '/getAnonymity'),
         timeout = 5,
         headers = {},
         proxies = proxies
