@@ -20,9 +20,7 @@ except Exception, e:
 
 class IpPipeline(object):
 
-  def __init__(self, request_headers):
-    self.request_headers = request_headers
-
+  def __init__(self):
     # 获取本机外网ip
     self.my_ip = self._get_my_ip()
 
@@ -32,15 +30,7 @@ class IpPipeline(object):
   def from_crawler(cls, crawler):
     settings = crawler.settings
 
-    default_request_headers = settings.get('DEFAULT_REQUEST_HEADERS')
-
-    ua = random.choice(settings.get('USER_AGENT_LIST'))
-    if ua:
-      default_request_headers['User-Agent'] = ua
-
-    return cls(
-      default_request_headers
-    )
+    return cls()
 
   @check_spider_pipeline
   def process_item(self, item, spider):
@@ -63,8 +53,8 @@ class IpPipeline(object):
     try:
       r = requests.get(
         url = TEST_PROXY_URL,
-        headers = self.request_headers,
         timeout = 5,
+        headers = {},
         proxies = proxies
       )
       d = json.loads(r.content)
@@ -96,7 +86,7 @@ class IpPipeline(object):
     try:
       r = requests.get(
         url = urljoin(TEST_PROXY_URL, '/getIp'),
-        headers = self.request_headers,
+        headers = {},
         timeout = 5
       )
       d = json.loads(r.content)
