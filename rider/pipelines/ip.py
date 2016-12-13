@@ -6,6 +6,7 @@ from rider.utilities.decorators import check_spider_pipeline
 from rider.utilities.db import createPool
 from hashlib import md5
 from rider.utilities.ip import getAnonymity, getSpeed
+from scrapy.exceptions import DropItem
 
 logger = logging.getLogger('IpPipeline')
 
@@ -31,8 +32,7 @@ class IpPipeline(object):
 
     # 无效代理直接返回
     if t == 3:
-      logger.info('ignore invalid ip, %s:%s', ip, port)
-      return item
+      raise DropItem('Ignore invalid ip, %s:%s' % (item['ip'], item['port']))
 
     # 否则入库
 

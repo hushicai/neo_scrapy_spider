@@ -76,6 +76,8 @@ def getMyIp():
     )
     d = json.loads(r.content)
 
+    logger.info('my ip is: %s', d['ip'])
+
     return d['ip']
   except Exception,e:
     logger.info(str(e))
