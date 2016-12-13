@@ -1,26 +1,15 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-
 import logging
-import requests
-import json
-from urlparse import urljoin
-import time
 from rider.utilities.decorators import check_spider_pipeline
 from rider.utilities.db import createPool
 from hashlib import md5
-from rider.config import TEST_PROXY_URL
+from rider.utilities.ip import getAnonymity, getSpeed
 
 logger = logging.getLogger('IpPipeline')
 
 class IpPipeline(object):
-
-  def __init__(self):
-    # 获取本机外网ip
-    self.my_ip = self._get_my_ip()
-
-    logger.info('my ip is: %s', self.my_ip)
 
   def open_spider(self, spider):
     self.dbpool = createPool('db_ip')
@@ -36,7 +25,7 @@ class IpPipeline(object):
       'http': 'http://%s:%s' % (ip, port),
       'https': 'https://%s:%s' % (ip, port)
     }
-    t = self._get_anonymity(proxies)
+    t = getAnonymity(proxies)
 
     item['anonymity'] = t
 
@@ -51,7 +40,7 @@ class IpPipeline(object):
     fd.update(ip + ':' + port)
     item['uid'] = fd.hexdigest()
 
-    s = self._get_speed(proxies)
+    s = getSpeed(proxies)
     item['speed'] = s
 
     deferred = self.dbpool.runInteraction(self._do_interaction, item, spider)
@@ -80,67 +69,3 @@ class IpPipeline(object):
     logger.error('adbapi runInteraction fail: %s', failure)
 
     return item
-
-  def _get_anonymity(self, proxies):
-    '''代理: 0 高匿，1 匿名，2 透明 3 无效代理'''
-
-    try:
-      r = requests.get(
-        url = urljoin(TEST_PROXY_URL, '/getAnonymity'),
-        timeout = 5,
-        headers = {},
-        proxies = proxies
-      )
-      d = json.loads(r.content)
-
-      # https://imququ.com/post/x-forwarded-for-header-in-http.html
-
-      if r.ok:
-        ip = d.get('ip')
-        http_x_forwared_for = d.get('x-forwarded-for')
-        http_via = d.get('via')
-
-        if ip == self.my_ip:
-          return 3
-        if http_x_forwared_for is None and http_via is None:
-          return 0
-        if http_via != None and http_x_forwared_for.find(self.my_ip) == -1:
-          return 1
-        if http_via != None and http_x_forwared_for.find(self.my_ip) != -1:
-          return 2
-      return 3
-    except Exception,e:
-      logger.warning(str(e))
-      return 3
-
-  def _get_speed(self, proxies):
-    start = time.time()
-    try:
-      r = requests.get(
-        url = TEST_PROXY_URL,
-        headers = {},
-        timeout = 10,
-        proxies = proxies
-      )
-
-      if r.ok:
-        speed = round(time.time() - start, 2)
-        return speed
-      else:
-        return 100
-    except Exception, e:
-      return 100
-
-  def _get_my_ip(self):
-    try:
-      r = requests.get(
-        url = urljoin(TEST_PROXY_URL, '/getIp'),
-        headers = {},
-        timeout = 5
-      )
-      d = json.loads(r.content)
-
-      return d['ip']
-    except Exception,e:
-      logger.info(str(e))
-      return None
