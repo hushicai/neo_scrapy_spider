@@ -4,19 +4,25 @@
 
 import re
 import logging
-from rider.utilities.decorators import check_spider_pipeline
 from lxml import etree
 import random
 import requests
 import json
 from urlparse import urljoin
+import time
+import MySQLdb
+import MySQLdb.cursors
+from twisted.enterprise import adbapi
+from rider.utilities.decorators import check_spider_pipeline
+from rider.config import MYSQL_HOST, MYSQL_USER, MYSQL_PASSWD
+from hashlib import md5
 
 logger = logging.getLogger('IpPipeline')
 
 try:
-  from rider.url import TEST_PROXY_URL
+  from rider.config import TEST_PROXY_URL
 except Exception, e:
-  logger.warning('For privacy, `rider/url.py` is ignored by git')
+  logger.warning('For privacy, `rider/config.py` is ignored by git')
 
 class IpPipeline(object):
 
@@ -26,11 +32,21 @@ class IpPipeline(object):
 
     logger.info('my ip is: %s', self.my_ip)
 
-  @classmethod
-  def from_crawler(cls, crawler):
-    settings = crawler.settings
+  def open_spider(self, spider):
+    db_args = dict(
+      host = MYSQL_HOST,
+      user = MYSQL_USER,
+      passwd = MYSQL_PASSWD,
+      db = 'db_ip',
+      charset = 'utf8',
+      cursorclass = MySQLdb.cursors.DictCursor,
+      use_unicode= True,
+    )
+    dbpool = adbapi.ConnectionPool('MySQLdb', **db_args)
+    self.dbpool = dbpool
 
-    return cls()
+  def close_spider(self, spider):
+    self.dbpool.close()
 
   @check_spider_pipeline
   def process_item(self, item, spider):
@@ -42,8 +58,46 @@ class IpPipeline(object):
     }
     t = self._get_anonymity(proxies)
 
-    logger.info('anonymity: %s', t)
     item['anonymity'] = t
+
+    # 无效代理直接返回
+    if t == 3:
+      logger.info('ignore invalid ip, %s:%s', ip, port)
+      return item
+
+    # 否则入库
+
+    fd = md5()
+    fd.update(ip + ':' + port)
+    item['uid'] = fd.hexdigest()
+
+    s = self._get_speed(proxies)
+    item['speed'] = s
+
+    deferred = self.dbpool.runInteraction(self._do_interaction, item, spider)
+    deferred.addCallback(self._handle_success)
+    deferred.addErrback(self._handle_error, item, spider)
+
+    return deferred
+
+  def _do_interaction(self, transaction, item, spider):
+    sql = """insert into db_ip.tb_ip_info(uid,ip,port,anonymity,speed)
+    values(%s,%s,%d,%d,%.2f)
+    """
+    logging.info('insert ip %s:%s', item['ip'], item['port'])
+    transaction.execute(
+      sql,
+      (item['uid'], item['ip'],item['port'],item['anonymity'],item['speed'])
+    )
+    return item
+
+  def _handle_success(self, item):
+    logging.info('adbapi runInteraction success: %s:%s', item['ip'], item['port'])
+
+    return item
+
+  def _handle_error(self, failure, item, spider):
+    logging.info('adbapi runInteraction fail: %s', failure)
 
     return item
 
@@ -80,7 +134,22 @@ class IpPipeline(object):
       return 3
 
   def _get_speed(self, proxies):
-    pass
+    start = time.time()
+    try:
+      r = requests.get(
+        url = TEST_PROXY_URL,
+        headers = {},
+        timeout = 10,
+        proxies = proxies
+      )
+
+      if r.ok:
+        speed = round(time.time() - start, 2)
+        return speed
+      else:
+        return 100
+    except Exception, e:
+      return 100
 
   def _get_my_ip(self):
     try:

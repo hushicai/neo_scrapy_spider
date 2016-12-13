@@ -6,14 +6,15 @@ import time
 from twisted.enterprise import adbapi
 from rider.utilities.decorators import check_spider_pipeline
 from rider.utilities.qiniu_cloud import Qiniu
+from rider.config import MYSQL_HOST, MYSQL_USER, MYSQL_PASSWD
 
 class ArticlePipeline(object):
 
   def open_spider(self, spider):
     db_args = dict(
-      host = 'localhost',
-      user = 'root',
-      passwd = '515224',
+      host = MYSQL_HOST,
+      user = MYSQL_USER,
+      passwd = MYSQL_PASSWD,
       db = 'db_weixin',
       charset = 'utf8',
       cursorclass = MySQLdb.cursors.DictCursor,
