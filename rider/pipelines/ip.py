@@ -32,7 +32,7 @@ class IpPipeline(object):
 
     # 无效代理直接返回
     if t == 3:
-      raise DropItem('Ignore invalid ip, %s:%s' % (item['ip'], item['port']))
+      raise DropItem('%s:%s' % (item['ip'], item['port']))
 
     # 否则入库
 

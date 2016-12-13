@@ -66,8 +66,17 @@ def getSpeed(proxies):
   except Exception, e:
     return 100
 
+# cache my ip
+_my_ip = None
+
 def getMyIp():
   """获取本机公网ip"""
+
+  global _my_ip
+
+  if _my_ip is not None:
+    return _my_ip
+
   try:
     r = requests.get(
       url = urljoin(TEST_PROXY_URL, '/getIp'),
@@ -78,7 +87,9 @@ def getMyIp():
 
     logger.info('my ip is: %s', d['ip'])
 
-    return d['ip']
+    _my_ip = d['ip']
+
+    return _my_ip
   except Exception,e:
     logger.info(str(e))
     return None

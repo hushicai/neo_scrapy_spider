@@ -6,6 +6,7 @@ import logging
 from lxml import etree
 from rider.items.ip import Item as IpItem
 from rider.pipelines.ip import *
+from scrapy import signals
 
 logger = logging.getLogger('IpSpider')
 
@@ -72,6 +73,14 @@ class IpSpider(scrapy.Spider):
       'postion':{'ip':0,'port':1}
     },
   ]
+
+  @classmethod
+  def from_crawler(cls, crawler, *args, **kwargs):
+    spider = cls()
+
+    # crawler.signals.connect(spider.handle_idle, signals.spider_idle)
+
+    return spider
 
   def start_requests(self):
     for parser in self.ip_source_list:
