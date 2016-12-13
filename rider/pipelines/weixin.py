@@ -4,7 +4,7 @@ import logging
 import time
 from rider.utilities.decorators import check_spider_pipeline
 from rider.utilities.qiniu_cloud import Qiniu
-from rider.utilities.dbpool import createPool
+from rider.utilities.db import createPool
 
 class ArticlePipeline(object):
 

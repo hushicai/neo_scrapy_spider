@@ -8,7 +8,7 @@ import json
 from urlparse import urljoin
 import time
 from rider.utilities.decorators import check_spider_pipeline
-from rider.utilities.dbpool import createPool
+from rider.utilities.db import createPool
 from hashlib import md5
 from rider.config import TEST_PROXY_URL
 
