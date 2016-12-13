@@ -13,7 +13,7 @@ def check_spider_pipeline(process_item_method):
       return item
 
     if self.__class__ in spider.pipelines:
-      logging.info("using {name}".format(name = name))
+      #  logging.info("using {name}".format(name = name))
       return process_item_method(self, item, spider)
     return item
 

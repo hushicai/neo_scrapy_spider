@@ -2,27 +2,17 @@
 # encoding: utf-8
 
 
-import re
 import logging
-from lxml import etree
-import random
 import requests
 import json
 from urlparse import urljoin
 import time
-import MySQLdb
-import MySQLdb.cursors
-from twisted.enterprise import adbapi
 from rider.utilities.decorators import check_spider_pipeline
-from rider.config import MYSQL_HOST, MYSQL_USER, MYSQL_PASSWD
+from rider.utilities.dbpool import createPool
 from hashlib import md5
+from rider.config import TEST_PROXY_URL
 
 logger = logging.getLogger('IpPipeline')
-
-try:
-  from rider.config import TEST_PROXY_URL
-except Exception, e:
-  logger.warning('For privacy, `rider/config.py` is ignored by git')
 
 class IpPipeline(object):
 
@@ -33,17 +23,7 @@ class IpPipeline(object):
     logger.info('my ip is: %s', self.my_ip)
 
   def open_spider(self, spider):
-    db_args = dict(
-      host = MYSQL_HOST,
-      user = MYSQL_USER,
-      passwd = MYSQL_PASSWD,
-      db = 'db_ip',
-      charset = 'utf8',
-      cursorclass = MySQLdb.cursors.DictCursor,
-      use_unicode= True,
-    )
-    dbpool = adbapi.ConnectionPool('MySQLdb', **db_args)
-    self.dbpool = dbpool
+    self.dbpool = createPool('db_ip')
 
   def close_spider(self, spider):
     self.dbpool.close()
@@ -84,7 +64,7 @@ class IpPipeline(object):
     sql = """insert into db_ip.tb_ip_info(uid,ip,port,anonymity,speed)
     values(%s,%s,%s,%s,%s)
     """
-    logging.info('insert ip %s:%s', item['ip'], item['port'])
+    logger.info('insert ip %s:%s', item['ip'], item['port'])
     transaction.execute(
       sql,
       (item['uid'], item['ip'],item['port'],item['anonymity'],item['speed'])
@@ -92,12 +72,12 @@ class IpPipeline(object):
     return item
 
   def _handle_success(self, item):
-    logging.info('adbapi runInteraction success: %s:%s', item['ip'], item['port'])
+    logger.info('adbapi runInteraction success: %s:%s', item['ip'], item['port'])
 
     return item
 
   def _handle_error(self, failure, item, spider):
-    logging.info('adbapi runInteraction fail: %s', failure)
+    logger.error('adbapi runInteraction fail: %s', failure)
 
     return item
 
