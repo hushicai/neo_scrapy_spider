@@ -82,7 +82,7 @@ class IpPipeline(object):
 
   def _do_interaction(self, transaction, item, spider):
     sql = """insert into db_ip.tb_ip_info(uid,ip,port,anonymity,speed)
-    values(%s,%s,%s,%d,%.2f)
+    values(%s,%s,%s,%s,%s)
     """
     logging.info('insert ip %s:%s', item['ip'], item['port'])
     transaction.execute(

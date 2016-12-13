@@ -1,0 +1,65 @@
+-- MySQL dump 10.13  Distrib 5.7.16, for osx10.11 (x86_64)
+--
+-- Host: localhost    Database: db_ip
+-- ------------------------------------------------------
+-- Server version	5.7.16
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Current Database: `db_ip`
+--
+
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `db_ip` /*!40100 DEFAULT CHARACTER SET utf8 */;
+
+USE `db_ip`;
+
+--
+-- Table structure for table `tb_ip_info`
+--
+
+DROP TABLE IF EXISTS `tb_ip_info`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tb_ip_info` (
+  `id` tinyint(4) NOT NULL AUTO_INCREMENT COMMENT '自增id',
+  `uid` varchar(64) NOT NULL,
+  `ip` varchar(32) NOT NULL,
+  `port` varchar(12) NOT NULL,
+  `anonymity` tinyint(4) NOT NULL COMMENT '匿名程度：0：高匿；1：匿名；2：透明；3：无效代理',
+  `speed` float DEFAULT '100',
+  PRIMARY KEY (`id`,`anonymity`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  UNIQUE KEY `uid_UNIQUE` (`uid`)
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tb_ip_info`
+--
+
+LOCK TABLES `tb_ip_info` WRITE;
+/*!40000 ALTER TABLE `tb_ip_info` DISABLE KEYS */;
+INSERT INTO `tb_ip_info` VALUES (1,'34965be71b651fd24f2f39b440d34b6f','120.76.203.31','80',0,100),(2,'99a3a76cc7e67cf5cc6a8c401bbde472','121.193.143.249','80',0,100),(15,'56e6b70fe283592b1ec00295709bf20f','193.34.13.188','8080',1,3.93),(16,'9ed30850b50cd54d010560ec9f89a5a7','103.228.246.23','8080',1,100),(17,'74e4573c86d81ef87c2cfbcccee57728','118.97.67.4','3128',1,8.5),(18,'4a975f4430aee1f59771ec47ae60eebd','183.129.151.130','80',0,0.66),(20,'16288d9717fa9648ec3667467765a88f','61.129.129.72','8080',1,1.68),(21,'228c9d16bd5655f15569509b8bc4aa9d','106.2.187.202','8080',1,2.22),(24,'ec0dc5609ef8abea0b038c286d841968','117.79.93.39','8808',0,7.26),(25,'0ef8d7bef529062257fa1abdcb8112b1','61.152.81.193','9100',1,0.55);
+/*!40000 ALTER TABLE `tb_ip_info` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2016-12-13 10:34:37
