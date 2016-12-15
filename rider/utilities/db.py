@@ -38,6 +38,7 @@ class DB(object):
     )
 
   def execute(self, sql, callback = lambda _: _.rowcount):
+    """增删改需要commit"""
     cursor = self.connection.cursor()
     logger.info('executing `%s`', sql)
     try:
@@ -54,6 +55,7 @@ class DB(object):
     return ret
 
   def query(self, sql):
+    """查询不需要commit"""
     cursor = self.connection.cursor()
     logger.info('querying `%s`', sql)
     try:

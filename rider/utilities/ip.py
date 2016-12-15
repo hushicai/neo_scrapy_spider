@@ -27,8 +27,6 @@ def getAnonymity(proxies):
     )
     d = json.loads(r.content)
 
-    # https://imququ.com/post/x-forwarded-for-header-in-http.html
-
     if r.ok:
       ip = d.get('ip')
       http_x_forwared_for = d.get('x-forwarded-for')

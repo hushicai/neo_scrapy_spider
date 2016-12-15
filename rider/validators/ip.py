@@ -4,7 +4,6 @@
 if __name__ == '__main__':
   import os
   import sys
-  import logging
 
   current_dir = os.path.abspath(__file__)
   project_dir = os.path.abspath(os.path.join(
@@ -15,12 +14,8 @@ if __name__ == '__main__':
   ))
   sys.path.append(project_dir)
 
-  logging.basicConfig(
-    stream = sys.stdout,
-    level = logging.INFO,
-    datefmt = '%Y-%m-%d %H:%M:%S',
-    format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-  )
+  from rider.env import set_up_logger
+  set_up_logger()
 
 import time
 import datetime
