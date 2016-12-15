@@ -2,19 +2,18 @@
 
 import re
 import scrapy
-import logging
+import time
 from lxml import etree
 from rider.items.ip import Item as IpItem
 from rider.pipelines.ip import *
+from rider.utilities.tools import get_logger
 from scrapy import signals
 
-logger = logging.getLogger('IpSpider')
+logger = get_logger('rider.spiders.ip')
 
 class IpSpider(scrapy.Spider):
 
   """ip"""
-
-  download_delay = 2
 
   name = 'ip'
 
@@ -76,11 +75,11 @@ class IpSpider(scrapy.Spider):
 
   @classmethod
   def from_crawler(cls, crawler, *args, **kwargs):
-    spider = cls()
+    crawler.signals.connect(cls.handle_start_signal, signals.engine_started)
+    crawler.signals.connect(cls.handle_end_signal, signals.engine_stopped)
+    crawler.signals.connect(cls.handle_idle_sinal, signals.spider_idle)
 
-    # crawler.signals.connect(spider.handle_idle, signals.spider_idle)
-
-    return spider
+    return cls()
 
   def start_requests(self):
     for parser in self.ip_source_list:
@@ -90,6 +89,8 @@ class IpSpider(scrapy.Spider):
 
       for url in parser['urls']:
         yield scrapy.Request(url = url, callback = self.parse, meta = meta)
+        # 暂停3s
+        time.sleep(3)
 
   def parse(self, response):
     meta = response.meta
@@ -162,3 +163,15 @@ class IpSpider(scrapy.Spider):
           new_port += chardict[port[i]]
       item['port'] = int(new_port)
       yield item
+
+  @classmethod
+  def handle_idle_sinal(self, spider):
+    logger.info('--------------- spider idle -----------------')
+
+  @classmethod
+  def handle_start_signal(cls):
+    logger.info('-------------- engine started ----------------')
+
+  @classmethod
+  def handle_end_signal(cls):
+    logger.info('-------------- engine stoped ----------------')

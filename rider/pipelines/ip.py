@@ -6,9 +6,10 @@ from rider.utilities.decorators import check_spider_pipeline
 from rider.utilities.db import createPool
 from hashlib import md5
 from rider.utilities.ip import getAnonymity, getSpeed
+from rider.utilities.tools import get_current_time, get_logger
 from scrapy.exceptions import DropItem
 
-logger = logging.getLogger('IpPipeline')
+logger = get_logger('rider.pipelines.ip')
 
 class IpPipeline(object):
 
@@ -35,13 +36,16 @@ class IpPipeline(object):
       raise DropItem('%s:%s' % (item['ip'], item['port']))
 
     # 否则入库
+    s = getSpeed(proxies)
+
+    if s is None:
+      s = 100
+
+    item['speed'] = s
 
     fd = md5()
     fd.update(ip + ':' + port)
     item['uid'] = fd.hexdigest()
-
-    s = getSpeed(proxies)
-    item['speed'] = s
 
     deferred = self.dbpool.runInteraction(self._do_interaction, item, spider)
     deferred.addCallback(self._handle_success)
@@ -50,13 +54,14 @@ class IpPipeline(object):
     return deferred
 
   def _do_interaction(self, transaction, item, spider):
-    sql = """insert into db_ip.tb_ip_info(uid,ip,port,anonymity,speed)
-    values(%s,%s,%s,%s,%s)
-    """
     logger.info('insert ip %s:%s', item['ip'], item['port'])
+    nowTime = get_current_time()
+    sql = """insert into db_ip.tb_ip_info(uid,ip,port,anonymity,speed,update_time)
+    values(%s,%s,%s,%s,%s,%s)
+    """
     transaction.execute(
       sql,
-      (item['uid'], item['ip'],item['port'],item['anonymity'],item['speed'])
+      (item['uid'], item['ip'],item['port'],item['anonymity'],item['speed'], nowTime)
     )
     return item
 

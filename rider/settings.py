@@ -93,8 +93,7 @@ ITEM_PIPELINES = {
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
-#  LOG_LEVEL = 'INFO'
-
+LOG_LEVEL = 'INFO'
 
 USER_AGENT_LIST = [
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) "
@@ -108,4 +107,3 @@ USER_AGENT_LIST = [
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) "
   "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.75 Safari/537.36 QQBrowser/4.1.4132.400"
 ]
-

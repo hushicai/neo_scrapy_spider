@@ -5,6 +5,7 @@ import time
 from rider.utilities.decorators import check_spider_pipeline
 from rider.utilities.qiniu_cloud import Qiniu
 from rider.utilities.db import createPool
+from rider.utilities.tools import get_current_time
 
 class ArticlePipeline(object):
 
@@ -39,7 +40,7 @@ class ArticlePipeline(object):
     transaction.execute(sql, (item['uid'], ))
     ret = transaction.fetchone()
 
-    nowTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+    nowTime = get_current_time()
 
     if ret is None:
       # 插入文章
@@ -106,7 +107,7 @@ class ArticlePipeline(object):
     values(%s,%s,%s);
     """
     logging.info('insert account: %s', item['weixin_name'])
-    nowTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+    nowTime = get_current_time()
     transaction.execute(
       sql,
       (item['weixin_id'], item['weixin_name'],nowTime)
@@ -116,7 +117,7 @@ class ArticlePipeline(object):
 
   def _update_qrcode(self, item):
     logging.info('update qrcode: %s %s', (item['title'],item['qrcode']))
-    nowTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+    nowTime = get_current_time()
     sql = """
     update db_weixin.tb_weixin_account set qrcode = '%s', update_time = '%s'
     where weixin_id = %s
