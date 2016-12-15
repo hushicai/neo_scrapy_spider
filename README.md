@@ -1,4 +1,4 @@
-#getMyIp neo_scrapy_spider
+# neo_scrapy_spider
 
 neo scrapy spider
 
