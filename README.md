@@ -61,8 +61,10 @@ python ./rider/api/server.py
 
 ### 启动爬虫
 
-启动ip spider:
+启动scrap爬取ip，这个ip爬虫任务需要一直跑起来。
 
 ```bash
 scrapy crawl ip
 ```
+
+启动其他scrapy爬虫。
