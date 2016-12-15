@@ -47,23 +47,22 @@ server返回如下ip列表，按响应速度倒叙排列：
 
 ## 用法
 
-### 启动爬虫
+### 启动api服务器
 
-启动ip spider:
+启动`rider/api/server.py`:
 
 ```bash
-scrapy crawl ip
+python ./rider/api/server.py
 ```
 
 ### 启动校验任务
 
 将`rider/validators/ip.py`加入到crontab定时任务列表中
 
-### 启动api服务器
+### 启动爬虫
 
-
-启动`rider/api/server.py`:
+启动ip spider:
 
 ```bash
-python ./rider/api/server.py
+scrapy crawl ip
 ```
