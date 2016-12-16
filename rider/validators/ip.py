@@ -31,7 +31,7 @@ class IpValidator(object):
   CHECK_INTERVAL_TIME = 60 * 60 # 秒
 
   # 3天过期
-  EXPIRE_MAX_TIME = 3 * 24 * 60 # 分钟
+  EXPIRE_MAX_DAY = 3 # 天
 
   def __init__(self):
     self.db = DB('db_ip')
@@ -56,7 +56,8 @@ class IpValidator(object):
   def delete_expire_ip(self):
     """删除过期ip"""
     logger.info('Delete expire ip....')
-    update_time = (datetime.datetime.now() - datetime.timedelta(self.EXPIRE_MAX_TIME))\
+    now_time = get_current_time(fmt = '')
+    update_time = (now_time - datetime.timedelta(days = self.EXPIRE_MAX_DAY))\
       .strftime('%Y-%m-%d %H:%M:%S')
     sql = """delete from db_ip.tb_ip_info where update_time < '%s'""" % update_time
     cnt = self.db.delete(sql)
@@ -104,5 +105,8 @@ class IpValidator(object):
 if __name__ == '__main__':
   validator = IpValidator()
   while True:
+    logger.info('Ip validator started --------')
     validator.run()
+    logger.info('Ip validator done ---------')
+    logger.info('Take a rest: %s ----------', IpValidator.CHECK_INTERVAL_TIME)
     time.sleep(IpValidator.CHECK_INTERVAL_TIME)
