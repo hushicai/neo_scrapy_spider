@@ -11,7 +11,7 @@ TEST_PROXY_URL = 'http://xxx'
 // ...
 ```
 
-`rider/validators/ip.py`是一个定时任务，在crontab中配置一个小时执行一次，主要用来校验、清洗库中现有ip:
+`rider/validators/ip.py`是一个ip校验脚本，主要用来校验并清洗库中现有ip:
 
 ```text
 * */1 * * * python /path/to/rider/validators/ip.py
@@ -49,22 +49,16 @@ server返回如下ip列表，按响应速度倒叙排列：
 
 ### 启动api服务器
 
-启动`rider/api/server.py`:
-
-```bash
-python ./rider/api/server.py
-```
+启动`rider/api/server.py`，可以用supervisor来管理api server进程。
 
 ### 启动校验任务
 
-将`rider/validators/ip.py`加入到crontab定时任务列表中
+启动`rider/validators/ip.py`，可以用supervisor来管理ip validator进程。
 
-### 启动爬虫
+### 启动ip爬虫
 
-启动scrap爬取ip，这个ip爬虫任务需要一直跑起来。
+启动scrap爬取ip，可以用supervisor来管理ip spider进程。
 
-```bash
-scrapy crawl ip
-```
+### 启动其他爬虫
 
-启动其他scrapy爬虫。
+其他爬虫将会使用上面的ip代理池来突破爬虫限制。

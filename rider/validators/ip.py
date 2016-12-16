@@ -27,6 +27,9 @@ logger = get_logger('rider.validators.ip')
 
 class IpValidator(object):
 
+  # 1小时check一次
+  CHECK_INTERVAL_TIME = 60 * 60 # 秒
+
   # 3天过期
   EXPIRE_MAX_TIME = 3 * 24 * 60 # 分钟
 
@@ -100,4 +103,6 @@ class IpValidator(object):
 
 if __name__ == '__main__':
   validator = IpValidator()
-  validator.run()
+  while True:
+    validator.run()
+    time.sleep(IpValidator.CHECK_INTERVAL_TIME)
