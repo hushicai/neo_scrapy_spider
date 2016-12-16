@@ -4,18 +4,10 @@ neo scrapy spider
 
 ## 说明
 
-`rider/config.py`模块主要配置了URL、mysql信息等，为了安全起见，没有提交到github，使用者需要自行新建config模块，并配置相应参数:
+`rider/config.py`模块主要配置了URL、mysql信息等，为了安全起见，没有提交到github，使用者需要自行新建config模块，并配置相应参数。
 
-```text
-TEST_PROXY_URL = 'http://xxx'
-// ...
-```
 
-`rider/validators/ip.py`是一个ip校验脚本，主要用来校验并清洗库中现有ip:
-
-```text
-* */1 * * * python /path/to/rider/validators/ip.py
-```
+`rider/validators/ip.py`是一个ip校验脚本，主要用来校验并清洗库中现有ip。
 
 `rider/api/server.py`是一个简单的服务器，提供web接口给爬虫调用，比如调用`/?action=select&count=5`，api
 server返回如下ip列表，按响应速度倒叙排列：
