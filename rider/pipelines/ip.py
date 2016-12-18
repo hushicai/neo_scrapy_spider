@@ -21,6 +21,7 @@ class IpPipeline(object):
 
   @check_spider_pipeline
   def process_item(self, item, spider):
+    logger.info('process item: %s', item)
     ip = item['ip']
     port = item['port']
     proxies = {
@@ -54,7 +55,7 @@ class IpPipeline(object):
     return deferred
 
   def _do_interaction(self, transaction, item, spider):
-    logger.info('insert ip %s:%s', item['ip'], item['port'])
+    logger.info('Try to insert item: %s', item)
     nowTime = get_current_time()
     sql = """insert into db_ip.tb_ip_info(uid,ip,port,anonymity,speed,update_time)
     values(%s,%s,%s,%s,%s,%s)
@@ -71,6 +72,6 @@ class IpPipeline(object):
     return item
 
   def _handle_error(self, failure, item, spider):
-    logger.error('adbapi runInteraction fail: %s', failure)
+    logger.error('adbapi runInteraction %s fail: %s', item ,failure)
 
     return item

@@ -1,6 +1,9 @@
 
 import random
 from scrapy.downloadermiddlewares.useragent import UserAgentMiddleware
+from rider.utilities.tools import get_logger
+
+logger = get_logger('rider.middlewares.useragent')
 
 class MyUserAgentMiddleware(UserAgentMiddleware):
 
@@ -19,4 +22,5 @@ class MyUserAgentMiddleware(UserAgentMiddleware):
     ua = random.choice(self.user_agent_list)
 
     if ua:
+      logger.info('using userAgent: %s', ua)
       request.headers.setdefault('User-Agent', ua)

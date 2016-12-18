@@ -55,8 +55,11 @@ DEFAULT_REQUEST_HEADERS = {
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
+  # 500
   'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
-  'rider.middlewares.useragent.MyUserAgentMiddleware':543
+  'rider.middlewares.useragent.MyUserAgentMiddleware':501,
+  'rider.middlewares.proxy.HttpProxyMiddleware': 502
+  # 550
 }
 
 # Enable or disable extensions
@@ -93,7 +96,7 @@ ITEM_PIPELINES = {
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
-LOG_LEVEL = 'INFO'
+LOG_LEVEL = 'DEBUG'
 
 USER_AGENT_LIST = [
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) "

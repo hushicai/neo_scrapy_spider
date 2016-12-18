@@ -2,7 +2,7 @@
 
 import scrapy
 
-class Item(scrapy.Item):
+class IpItem(scrapy.Item):
 
   "ip信息"
 

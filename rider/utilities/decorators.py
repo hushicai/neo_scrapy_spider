@@ -1,7 +1,9 @@
 # encoding: utf-8
 
 import functools
-import logging
+from rider.utilities.tools import get_logger
+
+logger = get_logger('rider.utilities.decorators')
 
 def check_spider_pipeline(process_item_method):
 
@@ -13,7 +15,7 @@ def check_spider_pipeline(process_item_method):
       return item
 
     if self.__class__ in spider.pipelines:
-      #  logging.info("using {name}".format(name = name))
+      logger.info("using %s for item: %s", name, item)
       return process_item_method(self, item, spider)
     return item
 

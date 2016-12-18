@@ -18,7 +18,7 @@ def getAnonymity(proxies):
     return 3
 
   try:
-    logger.info('Try to get anonymity from `/getAnonymity`')
+    logger.info('Try to get anonymity from `/getAnonymity`, with %s', proxies)
     r = requests.get(
       url = urljoin(TEST_PROXY_URL, '/getAnonymity'),
       timeout = 10,
@@ -52,7 +52,7 @@ def getSpeed(proxies):
   start = time.time()
 
   try:
-    logger.info('Try to get speed from `/`....')
+    logger.info('Try to get speed from `/`, with %s....', proxies)
     r = requests.get(
       url = TEST_PROXY_URL,
       headers = {},
@@ -79,6 +79,8 @@ def getMyIp():
   global _my_ip
 
   if _my_ip is not None:
+    logger.info('Got my ip from cache....')
+    logger.info('my ip is: %s', _my_ip)
     return _my_ip
 
   try:
