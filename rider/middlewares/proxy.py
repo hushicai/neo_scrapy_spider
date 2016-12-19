@@ -160,7 +160,7 @@ class HttpProxyMiddleware(object):
       self.inc_proxy_index()
       return
 
-    if not self.proxys[index]['valid']:
+    if not self.proxyes[index]['valid']:
       return
 
     logger.info("invalidate %s" % self.proxyes[index])
