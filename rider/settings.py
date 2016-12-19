@@ -39,6 +39,8 @@ COOKIES_ENABLED = False
 # Disable Telnet Console (enabled by default)
 #TELNETCONSOLE_ENABLED = False
 
+DOWNLOAD_TIMEOUT = 60
+
 # Override the default request headers:
 DEFAULT_REQUEST_HEADERS = {
   'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
@@ -56,6 +58,7 @@ DEFAULT_REQUEST_HEADERS = {
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
   # 500
+  'scrapy.downloadermiddlewares.downloadtimeout.DownloadTimeoutMiddleware': 350,
   'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
   'rider.middlewares.useragent.MyUserAgentMiddleware':501,
   'rider.middlewares.proxy.HttpProxyMiddleware': 502

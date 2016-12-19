@@ -74,7 +74,7 @@ class IpSpider(scrapy.Spider):
   ]
 
   @classmethod
-  def from_crawler(cls, crawler, *args, **kwargs):
+  def from_crawler(cls, crawler):
     crawler.signals.connect(cls.handle_start_signal, signals.engine_started)
     crawler.signals.connect(cls.handle_end_signal, signals.engine_stopped)
     crawler.signals.connect(cls.handle_idle_sinal, signals.spider_idle)

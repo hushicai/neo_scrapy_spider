@@ -51,7 +51,7 @@ class IpValidator(object):
     rows = self.db.query(sql)
     logger.info('Scanned ip counts: %s', len(rows))
     for row in rows:
-      self.detect_specific_ip(row)
+      self.check_specific_ip(row)
 
   def delete_expire_ip(self):
     """删除过期ip"""
@@ -77,9 +77,9 @@ class IpValidator(object):
     where id = %s""" % (item['speed'], nowTime, item['id'])
     self.db.update(sql)
 
-  def detect_specific_ip(self, item):
+  def check_specific_ip(self, item):
     """检测ip"""
-    logger.info('Detect ip, %s:%s', item['ip'], item['port'])
+    logger.info('Checking ip, %s:%s', item['ip'], item['port'])
     ip = item['ip']
     port = item['port']
     proxies = {
