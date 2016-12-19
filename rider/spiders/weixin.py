@@ -11,8 +11,6 @@ from hashlib import md5
 class WeixinSpider(scrapy.Spider):
   name = 'weixin'
 
-  download_delay = 2
-
   query = 'JavaScript'
 
   # 配置spider所需pipelines

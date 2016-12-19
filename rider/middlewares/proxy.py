@@ -23,7 +23,7 @@ class HttpProxyMiddleware(object):
     # 一个proxy如果没用到这个数字就被发现老是超时, 则永久移除该proxy. 设为0则不会修改代理文件.
     self.dump_count_threshold = 20
     # 是否在超时的情况下禁用代理
-    self.invalid_proxy_flag = True
+    self.invalid_proxy_when_timeout = True
     # 当有效代理小于这个数时(包括直连), 从网上抓取新的代理, 可以将这个数设为为了满足每个ip被要求输入验证码后得到足够休息时间所需要的代理数
     # 例如爬虫在十个可用代理之间切换时, 每个ip经过数分钟才再一次轮到自己, 这样就能get一些请求而不用输入验证码.
     # 如果这个数过小, 例如两个, 爬虫用A ip爬了没几个就被ban, 换了一个又爬了没几次就被ban, 这样整个爬虫就会处于一种忙等待的状态, 影响效率
@@ -37,7 +37,7 @@ class HttpProxyMiddleware(object):
     # 每隔固定时间强制抓取新代理(min)
     self.fetch_proxy_interval = 120
     # 一个将被设为invalid的代理如果已经成功爬取大于这个参数的页面， 将不会被invalid
-    self.invalid_proxy_threshold = 200
+    self.invalid_proxy_threshold = 100
     # 从db中获取初始代理
     self.get_proxyes_from_db()
 
@@ -210,19 +210,22 @@ class HttpProxyMiddleware(object):
 
   def process_exception(self, request, exception, spider):
     """处理由于使用代理导致的连接异常"""
-    logger.info("%s exception: %s" % (self.proxyes[request.meta["proxy_index"]]["proxy"], exception))
     request_proxy_index = request.meta["proxy_index"]
+    logger.info("%s exception: %s" % (self.proxyes[request_proxy_index]["proxy"], exception))
 
-    # 只有当proxy_index>fixed_proxy_count-1时才进行比较, 这样能保证至少本地直连是存在的.
     if isinstance(exception, self.DONT_RETRY_ERRORS):
-      if request_proxy_index > self.fixed_proxy_count - 1 and self.invalid_proxy_flag: # WARNING 直连时超时的话换个代理还是重试? 这是策略问题
+      # 只有当proxy_index>fixed_proxy_count-1时才进行比较, 这样能保证至少本地直连是存在的.
+      if request_proxy_index > self.fixed_proxy_count - 1 and self.invalid_proxy_when_timeout:
         if self.proxyes[request_proxy_index]["count"] < self.invalid_proxy_threshold:
           self.invalid_proxy(request_proxy_index)
-        elif request_proxy_index == self.proxy_index:  # 虽然超时，但是如果之前一直很好用，也不设为invalid
+        elif request_proxy_index == self.proxy_index:
+          # 虽然超时，但是如果之前一直很好用，也不设为invalid
           self.inc_proxy_index()
-      else:               # 简单的切换而不禁用
-        if request.meta["proxy_index"] == self.proxy_index:
+      else:
+        # 简单的切换而不禁用
+        if request_proxy_index == self.proxy_index:
           self.inc_proxy_index()
       new_request = request.copy()
       new_request.dont_filter = True
       return new_request
+    return None
