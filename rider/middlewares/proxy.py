@@ -136,7 +136,7 @@ class HttpProxyMiddleware(object):
     if self.proxy_index == 0: # 每次不用代理直接下载时更新self.last_no_proxy_time
       self.last_no_proxy_time = datetime.now()
 
-    logger.info('set proxy: %s', proxy)
+    logger.info('set proxy `%s` for request `%s`', proxy, request.url)
 
     if proxy["proxy"]:
       request.meta["proxy"] = proxy["proxy"]
