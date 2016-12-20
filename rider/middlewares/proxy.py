@@ -175,7 +175,7 @@ class HttpProxyMiddleware(object):
     request.meta["dont_redirect"] = True
     # spider发现parse error, 要求更换代理
     if "change_proxy" in request.meta.keys() and request.meta["change_proxy"]:
-      logger.info("change proxy request get by spider: %s"  % request)
+      logger.info("Spider ask for changing proxy for request: %s"  % request)
       self.invalid_proxy(request.meta["proxy_index"])
       request.meta["change_proxy"] = False
     self.set_proxy(request)
