@@ -19,7 +19,7 @@ class HttpProxyMiddleware(object):
     # 保存上次不用代理直接连接的时间点
     self.last_no_proxy_time = datetime.now()
     # 一定分钟数后切换回不用代理, 因为用代理影响到速度
-    self.recover_interval = 20
+    self.recover_interval = 30
     # 一个proxy如果没用到这个数字就被发现老是超时, 则永久移除该proxy. 设为0则不会修改代理文件.
     self.dump_count_threshold = 20
     # 是否在超时的情况下禁用代理
@@ -32,7 +32,7 @@ class HttpProxyMiddleware(object):
     self.proxyes = [{"proxy": None, "valid": True, "count": 0}]
     # 初始时使用0号代理(即无代理)
     self.proxy_index = 0
-    # 表示可信代理的数量(如自己搭建的HTTP代理)+1(不用代理直接连接)
+    # 可信代理的数量
     self.fixed_proxy_count = len(self.proxyes)
     # 每隔固定时间强制抓取新代理(min)
     self.fetch_proxy_interval = 120
@@ -188,7 +188,7 @@ class HttpProxyMiddleware(object):
 
   def process_response(self, request, response, spider):
     """
-   根据status是否在允许的状态码中决定是否切换到下一个proxy, 或者禁用proxy
+   根据status判断是否在允许的状态码中决定是否切换到下一个proxy, 或者禁用proxy
     """
     if "proxy" in request.meta.keys():
       logger.info("process response: %s %s %s" % (request.meta["proxy"], response.status, request.url))
