@@ -20,13 +20,11 @@ class HttpProxyMiddleware(object):
     self.last_no_proxy_time = datetime.now()
     # 一定分钟数后切换回不用代理, 因为用代理影响到速度
     self.recover_interval = 30
-    # 一个proxy如果没用到这个数字就被发现老是超时, 则永久移除该proxy. 设为0则不会修改代理文件.
+    # 一个proxy如果没用到这个数字就被发现老是超时, 则永久移除该proxy.
     self.dump_count_threshold = 20
     # 是否在超时的情况下禁用代理
     self.invalid_proxy_when_timeout = True
-    # 当有效代理小于这个数时(包括直连), 从网上抓取新的代理, 可以将这个数设为为了满足每个ip被要求输入验证码后得到足够休息时间所需要的代理数
-    # 例如爬虫在十个可用代理之间切换时, 每个ip经过数分钟才再一次轮到自己, 这样就能get一些请求而不用输入验证码.
-    # 如果这个数过小, 例如两个, 爬虫用A ip爬了没几个就被ban, 换了一个又爬了没几次就被ban, 这样整个爬虫就会处于一种忙等待的状态, 影响效率
+    # 当有效代理小于这个数时(包括直连), 获取新的代理
     self.extend_proxy_threshold = 10
     # 初始化代理列表
     self.proxyes = [{"proxy": None, "valid": True, "count": 0}]
@@ -35,7 +33,7 @@ class HttpProxyMiddleware(object):
     # 可信代理的数量
     self.fixed_proxy_count = len(self.proxyes)
     # 每隔固定时间强制抓取新代理(min)
-    self.fetch_proxy_interval = 120
+    self.get_proxy_interval = 120
     # 一个将被设为invalid的代理如果已经成功爬取大于这个参数的页面， 将不会被invalid
     self.invalid_proxy_threshold = 100
     # 从db中获取初始代理
@@ -69,20 +67,16 @@ class HttpProxyMiddleware(object):
     db.close()
     # 上一次抓新代理的时间
     self.last_get_proxy_time = datetime.now()
+    # 如果发现抓不到什么新的代理了, 缩小threshold
+    if self.len_valid_proxy() < self.extend_proxy_threshold:
+      self.extend_proxy_threshold -= 1
+    logger.info('proxyes now: %s', self.proxyes)
 
   def delete_proxy_in_db(self, proxy):
     """从数据库中删除指定ip"""
     db = DB('db_ip')
     db.delete("""delete from tb_ip_info where uid = %s""" % proxy['uid'])
     db.close()
-
-  def fetch_new_proxyes(self):
-    """扩充代理列表"""
-    logger.info("fetching new proxyes...")
-    # 如果发现抓不到什么新的代理了, 缩小threshold以避免白费功夫
-    if self.len_valid_proxy() < self.extend_proxy_threshold:
-      self.extend_proxy_threshold -= 1
-    logger.info('proxyes now: %s', self.proxyes)
 
   def reset_proxyes(self):
     """将所有count>=指定阈值的代理重置为valid"""
@@ -113,7 +107,7 @@ class HttpProxyMiddleware(object):
     # 两轮没有代理的时间间隔过短， 说明出现了验证码抖动，扩展代理列表
     if self.proxy_index == 0 and datetime.now() < self.last_no_proxy_time + timedelta(minutes=2):
       logger.info("captcha thrashing")
-      self.fetch_new_proxyes()
+      self.get_proxyes_from_db()
 
     # 如果代理列表中有效的代理不足的话重置为valid
     if self.len_valid_proxy() <= self.fixed_proxy_count or \
@@ -123,14 +117,14 @@ class HttpProxyMiddleware(object):
     # 代理数量仍然不足, 抓取新的代理
     if self.len_valid_proxy() < self.extend_proxy_threshold:
       logger.info("valid proxy < threshold: %d/%d" % (self.len_valid_proxy(), self.extend_proxy_threshold))
-      self.fetch_new_proxyes()
+      self.get_proxyes_from_db()
 
     logger.info("now using new proxy: %s" % self.proxyes[self.proxy_index]["proxy"])
 
     #  一定时间没更新后可能出现了在目前的代理不断循环不断验证码错误的情况, 强制抓取新代理
-    if datetime.now() > self.last_get_proxy_time + timedelta(minutes=self.fetch_proxy_interval):
-      logger.info("%d munites since last fetch" % self.fetch_proxy_interval)
-      self.fetch_new_proxyes()
+    if datetime.now() > self.last_get_proxy_time + timedelta(minutes=self.get_proxy_interval):
+      logger.info("%d munites since last fetch" % self.get_proxy_interval)
+      self.get_proxyes_from_db()
 
   def set_proxy(self, request):
     "设置代理"
